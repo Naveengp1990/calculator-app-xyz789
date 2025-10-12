@@ -84,26 +84,28 @@
         <div class="display" id="display">0</div>
         <div class="buttons-grid">
             <button class="clear" id="clear">C</button>
+            <button class="operator" id="squareRoot">√</button>
+            <button class="operator" id="percentage">%</button>
             <button class="operator" id="divide">/</button>
-            <button class="operator" id="multiply">*</button>
-            <button class="operator" id="subtract">-</button>
 
             <button id="seven">7</button>
             <button id="eight">8</button>
             <button id="nine">9</button>
-            <button class="operator" id="add">+</button>
+            <button class="operator" id="multiply">*</button>
 
             <button id="four">4</button>
             <button id="five">5</button>
             <button id="six">6</button>
+            <button class="operator" id="subtract">-</button>
 
             <button id="one">1</button>
             <button id="two">2</button>
             <button id="three">3</button>
-            <button class="equals" id="equals">=</button>
+            <button class="operator" id="add">+</button>
 
             <button class="zero" id="zero">0</button>
             <button id="decimal">.</button>
+            <button class="equals" id="equals">=</button>
         </div>
     </div>
     <script>
@@ -204,23 +206,71 @@
             }
         }
 
+        function handleSquareRoot() {
+            if (currentInput === 'Error') {
+                currentInput = '0'; // Reset from error before operation
+                updateDisplay();
+                return;
+            }
+            const value = parseFloat(currentInput);
+            if (value < 0) {
+                currentInput = 'Error';
+            } else {
+                currentInput = String(Math.sqrt(value));
+            }
+            waitingForSecondOperand = true;
+            updateDisplay();
+        }
+
+        function handlePercentage() {
+            if (currentInput === 'Error') {
+                currentInput = '0'; // Reset from error before operation
+                updateDisplay();
+                return;
+            }
+
+            const currentValue = parseFloat(currentInput);
+
+            if (operator && previousInput !== '') {
+                const prevValue = parseFloat(previousInput);
+                let result;
+                switch (operator) {
+                    case '+':
+                    case '-':
+                        result = prevValue * (currentValue / 100);
+                        break;
+                    case '*':
+                    case '/':
+                        result = currentValue / 100;
+                        break;
+                    default:
+                        result = currentValue / 100;
+                }
+                currentInput = String(result);
+            } else {
+                currentInput = String(currentValue / 100);
+            }
+            waitingForSecondOperand = true; // After percentage, the result is ready for next op or replacement
+            updateDisplay();
+        }
+
         buttons.forEach(button => {
             button.addEventListener('click', (event) => {
-                const { textContent } = event.target;
+                const { textContent, id, classList } = event.target;
 
-                if (event.target.id === 'clear') {
+                if (id === 'clear') {
                     clearCalculator();
                     return;
                 }
 
-                if (event.target.id === 'decimal') {
+                if (id === 'decimal') {
                     inputDecimal();
                     return;
                 }
 
-                if (event.target.id === 'equals') {
+                if (id === 'equals') {
                     if (operator && previousInput !== '' && currentInput !== 'Error') {
-                        const result = calculate(previousInput, parseFloat(currentInput), operator);
+                        const result = calculate(parseFloat(previousInput), parseFloat(currentInput), operator);
                         if (result === 'Error') {
                             currentInput = 'Error';
                         } else {
@@ -234,7 +284,17 @@
                     return;
                 }
 
-                if (event.target.classList.contains('operator')) {
+                if (id === 'squareRoot') {
+                    handleSquareRoot();
+                    return;
+                }
+
+                if (id === 'percentage') {
+                    handlePercentage();
+                    return;
+                }
+
+                if (classList.contains('operator')) {
                     handleOperator(textContent);
                     return;
                 }
