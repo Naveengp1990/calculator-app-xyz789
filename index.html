@@ -107,9 +107,9 @@
             background-color: #449d44;
         }
 
-        /* Specific styling for 0 button to span all four columns */
-        #number-btn-0 {
-            grid-column: span 4;
+        /* Specific styling for 0 button to span two columns */
+        .btn.zero {
+            grid-column: span 2;
         }
     </style>
 </head>
@@ -119,30 +119,32 @@
         <div class="calculator-buttons">
             <!-- Row 1 -->
             <button id="clear-btn" class="btn clear">C</button>
+            <button id="sqrt-btn" class="btn operator">√</button>
+            <button id="percent-btn" class="btn operator">%</button>
             <button id="divide-btn" class="btn operator">/</button>
-            <button id="multiply-btn" class="btn operator">*</button>
-            <button id="subtract-btn" class="btn operator">-</button>
 
             <!-- Row 2 -->
             <button id="number-btn-7" class="btn">7</button>
             <button id="number-btn-8" class="btn">8</button>
             <button id="number-btn-9" class="btn">9</button>
-            <button id="add-btn" class="btn operator">+</button>
+            <button id="multiply-btn" class="btn operator">*</button>
 
             <!-- Row 3 -->
             <button id="number-btn-4" class="btn">4</button>
             <button id="number-btn-5" class="btn">5</button>
             <button id="number-btn-6" class="btn">6</button>
-            <button id="decimal-btn" class="btn">.</button>
+            <button id="subtract-btn" class="btn operator">-</button>
 
             <!-- Row 4 -->
             <button id="number-btn-1" class="btn">1</button>
             <button id="number-btn-2" class="btn">2</button>
             <button id="number-btn-3" class="btn">3</button>
-            <button id="equals-btn" class="btn equals">=</button>
+            <button id="add-btn" class="btn operator">+</button>
 
             <!-- Row 5 -->
-            <button id="number-btn-0" class="btn">0</button>
+            <button id="number-btn-0" class="btn zero">0</button>
+            <button id="decimal-btn" class="btn">.</button>
+            <button id="equals-btn" class="btn equals">=</button>
         </div>
     </div>
 
@@ -160,7 +162,7 @@
         }
 
         function inputDigit(digit) {
-            if (waitingForSecondOperand === true) {
+            if (waitingForSecondOperand === true || displayValue.startsWith("Error")) {
                 displayValue = digit;
                 waitingForSecondOperand = false;
             } else {
@@ -169,7 +171,7 @@
         }
 
         function inputDecimal(dot) {
-            if (waitingForSecondOperand === true) {
+            if (waitingForSecondOperand === true || displayValue.startsWith("Error")) {
                 displayValue = '0.';
                 waitingForSecondOperand = false;
                 return;
@@ -246,6 +248,55 @@
             return second; 
         }
 
+        function handleSquareRoot() {
+            const inputValue = parseFloat(displayValue);
+            if (isNaN(inputValue)) {
+                displayValue = "Error";
+            } else if (inputValue < 0) {
+                displayValue = "Error: Neg Sqrt";
+            } else {
+                displayValue = String(parseFloat(Math.sqrt(inputValue).toFixed(10)));
+            }
+            firstOperand = null;
+            operator = null;
+            waitingForSecondOperand = false;
+            updateDisplay();
+        }
+
+        function handlePercentage() {
+            const currentValue = parseFloat(displayValue);
+
+            if (isNaN(currentValue)) {
+                displayValue = "Error";
+                updateDisplay();
+                return;
+            }
+
+            if (firstOperand === null || operator === null) {
+                // No pending operation, treat X% as X / 100
+                displayValue = String(parseFloat((currentValue / 100).toFixed(10)));
+            } else {
+                // Operation pending (e.g., 100 + 10%)
+                let result;
+                if (operator === '+' || operator === '-') {
+                    // X + Y% means X + (X * Y / 100)
+                    // X - Y% means X - (X * Y / 100)
+                    const percentageEffect = (firstOperand * currentValue) / 100;
+                    displayValue = String(parseFloat(calculate(firstOperand, percentageEffect, operator).toFixed(10)));
+                } else if (operator === '*' || operator === '/') {
+                    // X * Y% means X * (Y / 100)
+                    // X / Y% means X / (Y / 100)
+                    const percentageValue = currentValue / 100;
+                    displayValue = String(parseFloat(calculate(firstOperand, percentageValue, operator).toFixed(10)));
+                }
+                firstOperand = parseFloat(displayValue); // The result becomes the new first operand for chaining
+                operator = null; // Clear operator after percentage calculation
+            }
+            waitingForSecondOperand = false;
+            updateDisplay();
+        }
+
+
         function resetCalculator() {
             displayValue = '0';
             firstOperand = null;
@@ -260,7 +311,21 @@
                 return;
             }
 
+            // If an error is displayed, only 'C' should work as expected. Other operations should reset first.
+            if (displayValue.startsWith("Error") && target.id !== 'clear-btn') {
+                resetCalculator(); // Reset the calculator state
+                // Don't return, allow the current button press to be processed after reset.
+            }
+
             if (target.classList.contains('operator')) {
+                if (target.id === 'sqrt-btn') {
+                    handleSquareRoot();
+                    return;
+                }
+                if (target.id === 'percent-btn') {
+                    handlePercentage();
+                    return;
+                }
                 handleOperator(target.textContent);
                 return;
             }
