@@ -1,280 +1,249 @@
-<!--
-README.md
-# Simple Calculator Web App
-
-This is a minimalist, single-page web application designed to perform basic arithmetic operations. It provides a clean and intuitive user interface for addition, subtraction, multiplication, and division.
-
-## Features
-
--   **Basic Arithmetic Operations**: Perform addition (+), subtraction (-), multiplication (*), and division (/).
--   **Number Input**: Buttons for digits 0-9 and a decimal point (.).
--   **Clear Functionality**: A "C" button to reset the calculator and clear the display.
--   **Equals Button**: An "=" button to compute and display the result of the current operation.
--   **Clear Display**: A large, clear display area shows the current input and calculation results.
--   **Error Handling**: Displays a clear message for division by zero.
-
-## How to Use
-
-1.  **Open `index.html`**: Simply open this `index.html` file in any modern web browser.
-2.  **Enter Numbers**: Click on the number buttons (0-9) and the decimal point (.) to input your desired numbers.
-3.  **Select Operation**: Click on an operator button (+, -, *, /) to choose the arithmetic operation you wish to perform.
-4.  **Enter Second Number**: Input the second number for your calculation.
-5.  **Get Result**: Click the equals (=) button to see the computed result displayed prominently.
-6.  **Clear Calculator**: To start a new calculation or clear an error message, click the "C" button.
-
-## Technical Details
-
--   **Single HTML File**: The entire application is self-contained within this single `index.html` file, embedding all necessary HTML structure, CSS styling, and JavaScript logic.
--   **Pure Web Technologies**: Built exclusively with HTML5, CSS3, and Vanilla JavaScript, ensuring no external libraries or frameworks are required.
--   **Responsive Design**: The calculator's layout is designed to be user-friendly across various screen sizes.
-
-## Project Structure
-
--   `index.html`: The complete application file.
-
-## License
-
-This project is open-sourced under the MIT License.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A simple, clean, and user-friendly web calculator for basic arithmetic operations.">
     <title>Simple Calculator</title>
     <style>
-        :root {
-            --calculator-bg: #282c34;
-            --display-bg: #3c424d;
-            --display-text: #ffffff;
-            --button-bg: #4a505c;
-            --button-hover-bg: #5f6673;
-            --operator-bg: #f5a623;
-            --operator-hover-bg: #e0921a;
-            --equals-bg: #4CAF50;
-            --equals-hover-bg: #45a049;
-            --clear-bg: #dc3545;
-            --clear-hover-bg: #c82333;
-            --border-radius: 8px;
-            --gap: 8px;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         body {
-            margin: 0;
+            font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #343a40;
-            font-family: var(--font-family);
-            color: var(--display-text);
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
         }
 
         .calculator {
-            background-color: var(--calculator-bg);
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-            padding: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             width: 320px;
+            padding: 20px;
         }
 
-        .display {
-            background-color: var(--display-bg);
-            color: var(--display-text);
-            font-size: 2.5em;
+        #display {
+            background-color: #222;
+            color: #fff;
+            font-size: 3em;
+            padding: 15px 20px;
             text-align: right;
-            padding: 20px;
-            border-radius: var(--border-radius);
+            border-radius: 5px;
             margin-bottom: 20px;
             overflow: hidden;
-            text-overflow: ellipsis;
             white-space: nowrap;
-            min-height: 1.2em; /* Ensure consistent height */
+            text-overflow: ellipsis;
+            min-height: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
         }
 
-        .display.error {
-            color: #ff6b6b; /* Red for error messages */
-        }
-
-        .buttons {
+        .calculator-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: var(--gap);
+            gap: 10px;
         }
 
-        .button {
-            background-color: var(--button-bg);
-            color: var(--display-text);
+        .btn {
+            background-color: #555;
+            color: #fff;
             border: none;
-            border-radius: var(--border-radius);
-            padding: 20px 0;
-            font-size: 1.5em;
+            border-radius: 5px;
+            padding: 20px;
+            font-size: 1.8em;
             cursor: pointer;
             transition: background-color 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none; /* Prevent text selection */
         }
 
-        .button:hover {
-            background-color: var(--button-hover-bg);
+        .btn:hover {
+            background-color: #777;
         }
 
-        .button.operator {
-            background-color: var(--operator-bg);
+        .btn:active {
+            background-color: #444;
+            transform: translateY(1px);
         }
 
-        .button.operator:hover {
-            background-color: var(--operator-hover-bg);
+        .btn.operator {
+            background-color: #f90;
         }
 
-        .button.equals {
-            background-color: var(--equals-bg);
-            grid-row: span 2; /* Make equals button span two rows */
-            grid-column: 4; /* Place it in the 4th column */
+        .btn.operator:hover {
+            background-color: #ffa500;
         }
 
-        .button.equals:hover {
-            background-color: var(--equals-hover-bg);
+        .btn.operator:active {
+            background-color: #e68a00;
         }
 
-        .button.clear {
-            background-color: var(--clear-bg);
+        .btn.clear {
+            background-color: #d9534f;
         }
 
-        .button.clear:hover {
-            background-color: var(--clear-hover-bg);
+        .btn.clear:hover {
+            background-color: #c9302c;
         }
 
-        .button.zero {
-            grid-column: span 2; /* Make zero button span two columns */
+        .btn.clear:active {
+            background-color: #ac2925;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 400px) {
-            .calculator {
-                width: 95%;
-                padding: 15px;
-            }
-            .display {
-                font-size: 2em;
-                padding: 15px;
-            }
-            .button {
-                font-size: 1.2em;
-                padding: 15px 0;
-            }
+        .btn.equals {
+            background-color: #5cb85c;
+        }
+
+        .btn.equals:hover {
+            background-color: #4cae4c;
+        }
+
+        .btn.equals:active {
+            background-color: #449d44;
+        }
+
+        /* Specific styling for 0 button to span all four columns */
+        #number-btn-0 {
+            grid-column: span 4;
         }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <div class="display" id="display">0</div>
-        <div class="buttons">
-            <button class="button clear" id="clear">C</button>
-            <button class="button operator" data-operator="/">/</button>
-            <button class="button operator" data-operator="*">*</button>
-            <button class="button operator" data-operator="-">-</button>
+        <div id="display">0</div>
+        <div class="calculator-buttons">
+            <!-- Row 1 -->
+            <button id="clear-btn" class="btn clear">C</button>
+            <button id="divide-btn" class="btn operator">/</button>
+            <button id="multiply-btn" class="btn operator">*</button>
+            <button id="subtract-btn" class="btn operator">-</button>
 
-            <button class="button number">7</button>
-            <button class="button number">8</button>
-            <button class="button number">9</button>
-            <button class="button operator" data-operator="+">+</button>
+            <!-- Row 2 -->
+            <button id="number-btn-7" class="btn">7</button>
+            <button id="number-btn-8" class="btn">8</button>
+            <button id="number-btn-9" class="btn">9</button>
+            <button id="add-btn" class="btn operator">+</button>
 
-            <button class="button number">4</button>
-            <button class="button number">5</button>
-            <button class="button number">6</button>
+            <!-- Row 3 -->
+            <button id="number-btn-4" class="btn">4</button>
+            <button id="number-btn-5" class="btn">5</button>
+            <button id="number-btn-6" class="btn">6</button>
+            <button id="decimal-btn" class="btn">.</button>
 
-            <button class="button number">1</button>
-            <button class="button number">2</button>
-            <button class="button number">3</button>
-            <button class="button equals" id="equals">=</button>
+            <!-- Row 4 -->
+            <button id="number-btn-1" class="btn">1</button>
+            <button id="number-btn-2" class="btn">2</button>
+            <button id="number-btn-3" class="btn">3</button>
+            <button id="equals-btn" class="btn equals">=</button>
 
-            <button class="button number zero">0</button>
-            <button class="button number dot">.</button>
+            <!-- Row 5 -->
+            <button id="number-btn-0" class="btn">0</button>
         </div>
     </div>
 
     <script>
+        const display = document.getElementById('display');
+        const calculatorButtons = document.querySelector('.calculator-buttons');
+
         let displayValue = '0';
         let firstOperand = null;
         let operator = null;
-        let waitingForSecondOperand = false; // True when an operator has been clicked and waiting for the next number
+        let waitingForSecondOperand = false;
 
         function updateDisplay() {
-            const display = document.getElementById('display');
             display.textContent = displayValue;
-            if (displayValue.includes('Error')) {
-                display.classList.add('error');
-            } else {
-                display.classList.remove('error');
-            }
         }
 
         function inputDigit(digit) {
-            if (waitingForSecondOperand) {
+            if (waitingForSecondOperand === true) {
                 displayValue = digit;
                 waitingForSecondOperand = false;
             } else {
                 displayValue = displayValue === '0' ? digit : displayValue + digit;
             }
-            updateDisplay();
         }
 
         function inputDecimal(dot) {
-            if (waitingForSecondOperand) {
+            if (waitingForSecondOperand === true) {
                 displayValue = '0.';
                 waitingForSecondOperand = false;
-                updateDisplay();
                 return;
             }
             if (!displayValue.includes(dot)) {
                 displayValue += dot;
             }
-            updateDisplay();
         }
 
         function handleOperator(nextOperator) {
             const inputValue = parseFloat(displayValue);
 
-            // Handle cases where an operator is pressed immediately after an error
-            if (displayValue.includes('Error')) {
-                firstOperand = null;
-                operator = null;
-                waitingForSecondOperand = true;
-                return;
-            }
-
             if (firstOperand === null && !isNaN(inputValue)) {
                 firstOperand = inputValue;
-            } else if (operator) {
+            } else if (operator && !waitingForSecondOperand) {
                 const result = calculate(firstOperand, inputValue, operator);
-                if (result === 'Error: Div by 0') {
+                if (typeof result === 'string' && result.startsWith("Error")) {
                     displayValue = result;
                     firstOperand = null;
                     operator = null;
-                    waitingForSecondOperand = true; // Allow new calculation after error
+                    waitingForSecondOperand = false;
                     updateDisplay();
                     return;
                 }
-                displayValue = `${parseFloat(result.toFixed(7))}`; // Limit decimal places, avoid float issues
+                displayValue = String(parseFloat(result.toFixed(10)));
                 firstOperand = result;
             }
-
+            
             waitingForSecondOperand = true;
             operator = nextOperator;
             updateDisplay();
         }
 
-        function calculate(first, second, operator) {
-            if (operator === '+') return first + second;
-            if (operator === '-') return first - second;
-            if (operator === '*') return first * second;
-            if (operator === '/') {
-                if (second === 0) return 'Error: Div by 0';
+        function performCalculation() {
+            if (firstOperand === null || operator === null) {
+                return;
+            }
+
+            let secondOperand;
+            if (waitingForSecondOperand) {
+                secondOperand = firstOperand; // For cases like 5 + = (repeats 5 + 5)
+            } else {
+                secondOperand = parseFloat(displayValue);
+            }
+            
+            const result = calculate(firstOperand, secondOperand, operator);
+
+            if (typeof result === 'string' && result.startsWith("Error")) {
+                displayValue = result;
+                firstOperand = null;
+                operator = null;
+                waitingForSecondOperand = false;
+                updateDisplay();
+                return;
+            }
+
+            displayValue = String(parseFloat(result.toFixed(10)));
+            firstOperand = null;
+            operator = null;
+            waitingForSecondOperand = false;
+            updateDisplay();
+        }
+
+        function calculate(first, second, op) {
+            if (op === '+') { return first + second; }
+            if (op === '-') { return first - second; }
+            if (op === '*') { return first * second; }
+            if (op === '/') {
+                if (second === 0) {
+                    return "Error: Div by 0";
+                }
                 return first / second;
             }
-            return second; // Should not happen if operator is always set
+            return second; 
         }
 
         function resetCalculator() {
@@ -285,58 +254,39 @@ This project is open-sourced under the MIT License.
             updateDisplay();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            updateDisplay(); // Initialize display
+        calculatorButtons.addEventListener('click', (event) => {
+            const { target } = event;
+            if (!target.matches('button')) {
+                return;
+            }
 
-            const buttonsContainer = document.querySelector('.buttons');
-            buttonsContainer.addEventListener('click', (event) => {
-                const { target } = event;
+            if (target.classList.contains('operator')) {
+                handleOperator(target.textContent);
+                return;
+            }
 
-                if (!target.matches('button')) {
-                    return; // Ignore clicks not on buttons
-                }
+            if (target.classList.contains('clear')) {
+                resetCalculator();
+                return;
+            }
 
-                if (target.classList.contains('operator')) {
-                    handleOperator(target.dataset.operator);
-                    return;
-                }
+            if (target.classList.contains('equals')) {
+                performCalculation();
+                return;
+            }
 
-                if (target.classList.contains('number')) {
-                    if (target.textContent === '.') {
-                        inputDecimal(target.textContent);
-                    } else {
-                        inputDigit(target.textContent);
-                    }
-                    return;
-                }
+            if (target.id === 'decimal-btn') {
+                inputDecimal(target.textContent);
+                updateDisplay();
+                return;
+            }
 
-                if (target.classList.contains('equals')) {
-                    // If no first operand or operator, or currently showing an error, do nothing
-                    if (firstOperand === null || operator === null || displayValue.includes('Error')) {
-                        return;
-                    }
-                    const secondOperand = parseFloat(displayValue);
-                    const result = calculate(firstOperand, secondOperand, operator);
-
-                    if (result === 'Error: Div by 0') {
-                        displayValue = result;
-                    } else {
-                        displayValue = `${parseFloat(result.toFixed(7))}`; // Format final result
-                    }
-                    
-                    firstOperand = null; // Reset for next calculation
-                    operator = null;
-                    waitingForSecondOperand = true; // Ready for new input after result
-                    updateDisplay();
-                    return;
-                }
-
-                if (target.classList.contains('clear')) {
-                    resetCalculator();
-                    return;
-                }
-            });
+            inputDigit(target.textContent);
+            updateDisplay();
         });
+
+        // Initialize display
+        updateDisplay();
     </script>
 </body>
 </html>
